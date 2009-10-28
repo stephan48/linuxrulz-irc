@@ -27,10 +27,12 @@ channels   ("#linuxrulz.bots");
 poco_irc_args ( Debug => 1, plugin_debug=>1 );
 
 plugins (
-	'AuthPlugin'  => 'LinuxRulz::Bot::Plugin::AuthPlugin',
-	'TestPlugin1' => 'LinuxRulz::Bot::Plugin::TestPlugin1',
-	'DCCPlugin'   => 'LinuxRulz::Bot::Plugin::DCCPlugin',
-	'TwitterBridge'   => 'LinuxRulz::Bot::Plugin::TwitterBridge', );
+	'auth'  => 'LinuxRulz::Bot::Plugin::AuthPlugin',
+	'test' => 'LinuxRulz::Bot::Plugin::TestPlugin',
+#	'DCCPlugin'   => 'LinuxRulz::Bot::Plugin::DCCPlugin',
+#	'TwitterBridge'   => 'LinuxRulz::Bot::Plugin::TwitterBridge',
+#	'TCPDPlugin' => 'LinuxRulz::Bot::Plugin::TCPDPlugin',
+);
 
 owner 'stephan48!stephanj@stephan48.users.quakenet.org';
 

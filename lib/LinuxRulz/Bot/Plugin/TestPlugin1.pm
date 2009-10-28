@@ -10,7 +10,7 @@ sub S_msg {
 
 	$self->privmsg($nick => "Test via PRIVMSG");
 
-    return PCI_EAT_ALL;
+
 }
 
 sub S_bot_addressed {

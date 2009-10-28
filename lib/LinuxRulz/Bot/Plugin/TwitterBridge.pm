@@ -12,10 +12,7 @@ use JSON::Any;
 
 sub S_plugin_add {
 	my ( $self, $irc ) = @_;
-	die 1;
-	print "\n\n\n\nFUCK FUCK FUCK!\n\n\n\n\n";
-	$irc->plugin_get("AuthPlugin")->commands_register($self);
-    return PCI_EAT_ALL;
+
 }
 
 sub S_msg {
