@@ -99,11 +99,6 @@ event irc_public => sub {
 	my ( $self, $nickstr, $channel, $msg ) = @_[ OBJECT, ARG0, ARG1, ARG2 ];
 	my ($nick) = split /!/, $nickstr;
 	
-	if($msg =~ /^!(.*)/)
-	{
-		$self->privmsg("#linuxrulz.bots" => "Command Unhandled!");
-		#return PCI_EAT_NONE;
-	}
 };
 
 event irc_msg => sub {

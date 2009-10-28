@@ -15,9 +15,6 @@ sub S_plugin_add  {
 		$irc->pipeline->bump_up($self, $irc->pipeline->get_index($self));
 	}
 
-		
-	#arn "\n\n".Dumper($irc->plugin_get($$desc)->can("S_msg"))."\n";
-	 
 	return PCI_EAT_NONE;
 }
 
@@ -34,10 +31,6 @@ sub S_bot_addressed {
 	
 	return $self->handle_message($irc, $$nickstr, $$channel, "chan", $$msg);
 	
-#my $qauth = $irc->is_nick_authed( $nick );
-	
-	#$ldap->user_isin_group($qauth,$permission);
-
     return PCI_EAT_NONE;
 }
 
@@ -45,6 +38,8 @@ sub handle_message {
 	my ( $self, $irc, $nickstr, $where, $source, $message ) = @_;
 
     my ($nick) = split /!/, $nickstr;
+	my $qauth  = $irc->is_nick_authed( $nick );
+
 
 	if($message =~ /^!((?:[a-z][a-z0-9_\.]*))\s?(.+)?$/)
 	{
@@ -95,11 +90,50 @@ sub handle_message {
            	$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! Not A LinuxRulz Plugin! ($command)");
 			return PCI_EAT_NONE;
         }
-            
+
+		if(!$command_plugin_object->has_cmds())
+		{
+			$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! Plugin $command_plugin has no CMDS!");
+            return PCI_EAT_NONE;
+		}
+		
+		my $command_hash;
+
+		if(!($command_hash = $command_plugin_object->get_cmd($command_string)))
+		{
+			$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! Plugin $command_plugin has no Command $command_string!");
+            return PCI_EAT_NONE;
+		}
+	
+		if($command_hash->{permission})
+		{
+			if(!$qauth)
+			{
+				$self->send_msg($irc, $nickstr, $where, $source, "You need an QAUTH to use the Command!");
+            	return PCI_EAT_NONE;
+			}
+
+			if(!($self->bot->ldap->user_isin_group($qauth,$command_hash->{permission})))
+			{
+				$self->send_msg($irc, $nickstr, $where, $source, "You are not authorized to use this Command!");
+                return PCI_EAT_NONE;
+			}
+		}
+		elsif ($command_hash->{permission_sub})
+		{
+        	$self->send_msg($irc, $nickstr, $where, $source, "Permission Sub need to be implanted first!!");
+            return PCI_EAT_NONE;
+		}
+		else
+		{
+			$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! No way to authorize user!");
+            return PCI_EAT_NONE;
+		}
+
+		return $command_plugin_object->handle_command($irc, $nickstr, $where, $source, $qauth, $command_string, $args);
+
 		$self->send_msg($irc, $nickstr, $where, $source, "ok");
 	}
-
-	#print "\n\n".(join ',', map { $_->isa } @{$self->{plugins}})."\n\n";
 
 	return PCI_EAT_NONE;
 }
@@ -111,10 +145,6 @@ sub commands_register {
 
 	push @{$self->{plugins}}, $plugin;
 }
-
-
-
-
 
 __PACKAGE__->meta->add_method( S_public => \&S_bot_addressed );
 
