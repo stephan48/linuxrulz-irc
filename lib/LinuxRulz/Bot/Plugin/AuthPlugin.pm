@@ -112,7 +112,13 @@ sub handle_message {
 				$self->send_msg($irc, $nickstr, $where, $source, "You need an QAUTH to use the Command!");
             	return PCI_EAT_NONE;
 			}
-
+			
+			if(!($self->bot->ldap->user_exist($qauth)))
+            {
+                $self->send_msg($irc, $nickstr, $where, $source, "You need to be registrated(on HP) to use this Command!");
+                return PCI_EAT_NONE;
+            }
+		
 			if(!($self->bot->ldap->user_isin_group($qauth,$command_hash->{permission})))
 			{
 				$self->send_msg($irc, $nickstr, $where, $source, "You are not authorized to use this Command!");
