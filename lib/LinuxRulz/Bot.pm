@@ -22,13 +22,17 @@ password '';
 username 'linuxrulz';
 nickname 'Linuxrulz';
 
-channels   ("#linuxrulz.bots");
+channels   (
+	"#linuxrulz.bots",
+#	"#linuxrulz",
+);
 
 poco_irc_args ( Debug => 1, plugin_debug=>1 );
 
 plugins (
 	'auth'  => 'LinuxRulz::Bot::Plugin::AuthPlugin',
-	'test' => 'LinuxRulz::Bot::Plugin::TestPlugin',
+	'test'  => 'LinuxRulz::Bot::Plugin::TestPlugin',
+	'admin' => 'LinuxRulz::Bot::Plugin::AdminPlugin',
 #	'DCCPlugin'   => 'LinuxRulz::Bot::Plugin::DCCPlugin',
 #	'TwitterBridge'   => 'LinuxRulz::Bot::Plugin::TwitterBridge',
 #	'TCPDPlugin' => 'LinuxRulz::Bot::Plugin::TCPDPlugin',
@@ -105,6 +109,14 @@ event irc_msg => sub {
     my ( $self, $nickstr, $msg ) = @_[ OBJECT, ARG0, ARG1 ];
     my ($nick) = split /!/, $nickstr;
 
+};
+
+event irc_disconnected => sub {
+   my ($self) = @_;
+
+   POE::Kernel->post( $self->irc_session_id => unregister => 'all' );
+
+   exit 0;
 };
 
 1;

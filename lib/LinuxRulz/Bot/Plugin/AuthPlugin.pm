@@ -14,6 +14,8 @@ sub S_plugin_add  {
 	{
 		$irc->pipeline->bump_up($self, $irc->pipeline->get_index($self));
 	}
+	
+	$self->{alias}->{"test"} = { plugin=> "test", cmd=> "test"};
 
 	return PCI_EAT_NONE;
 }
@@ -62,14 +64,15 @@ sub handle_message {
 		}
 		elsif($command =~ /^((?:[a-z][a-z0-9_]*))$/)
 		{
-			if(!($self->{alias}->{$1}))
+			my $alias = lc($1);
+			if(!($self->{alias}->{$alias}))
 			{
 				$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! Alias not found! ($command)");
             	return PCI_EAT_NONE;
 			}
 			
-			$command_plugin = $self->{alias}->{$1}->{plugin};
-            $command_string = $self->{alias}->{$1}->{cmd};
+			$command_plugin = $self->{alias}->{$alias}->{plugin};
+            $command_string = $self->{alias}->{$alias}->{cmd};
 		}
 		else
         {
@@ -109,7 +112,7 @@ sub handle_message {
 		{
 			if(!$qauth)
 			{
-				$self->send_msg($irc, $nickstr, $where, $source, "You need an QAUTH to use the Command!");
+				$self->send_msg($irc, $nickstr, $where, $source, "You need an QAUTH to use the Command!(Please try again in 30 seconds! Maybe your nick isnt tracked yet!");
             	return PCI_EAT_NONE;
 			}
 			

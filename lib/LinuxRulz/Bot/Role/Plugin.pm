@@ -2,6 +2,8 @@ package LinuxRulz::Bot::Role::Plugin;
 
 use Moose::Role;
 
+use Data::Dumper;
+
 has _cmds => (
     isa        => 'HashRef',
     accessor   => 'cmds',
@@ -27,7 +29,17 @@ sub send_msg {
     }
     elsif($source eq "chan")
     {
-        return $self->privmsg($where => $message);
+		if($where eq "!!allchans!!")
+		{
+		    foreach my $chan ($self->bot->get_channels)
+        	{
+				$self->privmsg($chan => $message);
+        	}
+		}
+		else
+		{
+			$self->privmsg($where => $message);
+		}
     }
 }
 
