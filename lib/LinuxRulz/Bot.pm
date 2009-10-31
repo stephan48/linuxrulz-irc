@@ -1,5 +1,4 @@
 package LinuxRulz::Bot;
-use lib '.';
 use Moses;
 use namespace::autoclean;
 
@@ -12,6 +11,7 @@ use lib '/home/linuxrulz/catalyst/LinuxRulz/lib/';
 
 use LinuxRulz::Schema;
 use LinuxRulz::LDAP;
+use LinuxRulz::Bot::Logger;
 
 use POE::Component::IRC::Qnet::State;
 use POE::Component::IRC::Plugin qw( :ALL );
@@ -70,6 +70,10 @@ sub _build__irc {
         Password => $_[0]->get_password,
         %{ $_[0]->get_poco_irc_args },
     );
+}
+
+sub _build_logger {
+	return LinuxRulz::Bot::Logger->new(configfile => "/home/linuxrulz/bots/linuxrulz/etc/log4perl.cfg", checktime => 10, namespace => "LinuxRulzBot");
 }
 
 after 'START' => sub {
