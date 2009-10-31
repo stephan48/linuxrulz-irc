@@ -12,7 +12,7 @@ sub build_cmds {
 	return { 
 		"quit" =>
 			{
-				permission => "linuxrulz-owner",	
+				permission => "linuxrulz-owner",
 			},
 		"saychan" =>
             {

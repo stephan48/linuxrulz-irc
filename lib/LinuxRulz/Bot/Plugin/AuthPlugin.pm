@@ -41,7 +41,7 @@ sub handle_message {
 
     my ($nick) = split /!/, $nickstr;
 	my $qauth  = $irc->is_nick_authed( $nick );
-
+	my $logger = $self->bot->logger->get_logger("auth");
 
 	if($message =~ /^!((?:[a-z][a-z0-9_\.]*))\s?(.+)?$/)
 	{
@@ -138,6 +138,8 @@ sub handle_message {
 			$self->send_msg($irc, $nickstr, $where, $source, "Sorry but I wasn't able to handle the command! No way to authorize user!");
             return PCI_EAT_NONE;
 		}
+	
+		$logger->info("User $nickstr (QAuth: $qauth) issued Command: \"$command_string\" for Plugin \"$command_plugin\" with args: \"".($args ? $args : "(no args)")."\" in ".(($source eq "chan") ? "Channel \"".@{$where}[0]."\n" : "\nQuery\n" )."!");  
 
 		return $command_plugin_object->handle_command($irc, $nickstr, $where, $source, $qauth, $command_string, $args);
 
