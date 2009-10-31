@@ -1,5 +1,7 @@
 package LinuxRulz::Bot::Role::Plugin;
 
+use utf8;
+
 use Moose::Role;
 
 use Data::Dumper;

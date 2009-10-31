@@ -1,5 +1,7 @@
 package LinuxRulz::Bot::Plugin::AdminPlugin;
 
+use utf8;
+
 use Moses::Plugin;
 use namespace::autoclean;
 use Data::Dumper;
@@ -64,6 +66,7 @@ sub handle_command {
         $self->send_msg($irc, $nickstr, $user, "priv", $msg);
         return PCI_EAT_ALL;
     }
+
 
 	return PCI_EAT_NONE;
 }

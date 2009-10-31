@@ -1,10 +1,13 @@
 package LinuxRulz::Bot;
+use utf8;
+
 use Moses;
 use namespace::autoclean;
 
 use Carp;
 use Config::JFDI;
 use Data::Dumper;
+use YAML qw(LoadFile) ;
 
 use lib '/home/linuxrulz/libs/perl/';
 use lib '/home/linuxrulz/catalyst/LinuxRulz/lib/';
@@ -16,15 +19,17 @@ use LinuxRulz::Bot::Logger;
 use POE::Component::IRC::Qnet::State;
 use POE::Component::IRC::Plugin qw( :ALL );
 
-server   'irc.quakenet.org';
-port     '6667';
-password '';
+my $config = LoadFile("etc/config.yaml");
+
+server   '127.0.0.1';
+port     '9000';
+password $config->{bncpw};
 username 'linuxrulz';
 nickname 'Linuxrulz';
 
 channels   (
 	"#linuxrulz.bots",
-#	"#linuxrulz",
+	"#linuxrulz",
 );
 
 poco_irc_args ( Debug => 1, plugin_debug=>1 );
@@ -33,6 +38,7 @@ plugins (
 	'auth'  => 'LinuxRulz::Bot::Plugin::AuthPlugin',
 	'test'  => 'LinuxRulz::Bot::Plugin::TestPlugin',
 	'admin' => 'LinuxRulz::Bot::Plugin::AdminPlugin',
+	'glossar' => 'LinuxRulz::Bot::Plugin::GlossarPlugin',
 #	'DCCPlugin'   => 'LinuxRulz::Bot::Plugin::DCCPlugin',
 #	'TwitterBridge'   => 'LinuxRulz::Bot::Plugin::TwitterBridge',
 #	'TCPDPlugin' => 'LinuxRulz::Bot::Plugin::TCPDPlugin',

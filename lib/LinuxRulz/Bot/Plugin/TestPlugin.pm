@@ -1,5 +1,5 @@
 package LinuxRulz::Bot::Plugin::TestPlugin;
-
+use utf8;
 use Moses::Plugin;
 use namespace::autoclean;
 use Data::Dumper;
