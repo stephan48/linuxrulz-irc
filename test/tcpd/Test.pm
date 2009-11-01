@@ -27,6 +27,7 @@ has _sfsid => (
 );
 
 sub _build__socketfactory {
+	warn "\n\n\n\nTTTTTTTEEEEEEEESSSSSSSSSSTTTTTTTTTTTTT\n\n\n\n\n\n\n";
 	my $self = shift;
 	unlink "/home/linuxrulz/bots/linuxrulz/var/bot.socket" if -e "/home/linuxrulz/bots/linuxrulz/var/bot.socket";
 	my $socketfactory;
@@ -42,6 +43,7 @@ sub _build__socketfactory {
 
     			);
 				$self->_sfsid($_[SESSION]->ID());
+				POE::Kernel->alias_set("socketfactoy_session");
 			},
 			_stop => sub {
 				$self->_clients({});
@@ -52,7 +54,7 @@ sub _build__socketfactory {
 			on_client_input  => sub { $self->got_client_input(@_[ARG0..$#_]); },
             on_client_error  => sub { $self->got_client_error(@_[ARG0..$#_]); },
     	},
-	   	heap => {self => $self},
+	   	#heap => {self => $self},
   	);
 		
 	$self->_clients({});
@@ -91,12 +93,16 @@ sub got_client_input {
 	{
 		$self->_clients({});
         $self->socketfactory(undef);
-        POE::Kernel->refcount_decrement($self->_sfsid, __PACKAGE__);
+		#POE::Kernel->post("socketfactoy_session", "stop");
+        #POE::Kernel->refcount_decrement(2);
 		return;
 	}
 	
 	$input =~ tr[a-zA-Z][n-za-mN-ZA-M]; # ASCII rot13
     $self->_clients->{$wheel_id}->put($input);
 }
+
+
+
 
 1;
