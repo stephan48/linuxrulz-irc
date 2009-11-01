@@ -27,7 +27,6 @@ has _sfsid => (
 );
 
 sub _build__socketfactory {
-	warn "\n\n\n\nTTTTTTTEEEEEEEESSSSSSSSSSTTTTTTTTTTTTT\n\n\n\n\n\n\n";
 	my $self = shift;
 	unlink "/home/linuxrulz/bots/linuxrulz/var/bot.socket" if -e "/home/linuxrulz/bots/linuxrulz/var/bot.socket";
 	my $socketfactory;
@@ -45,6 +44,11 @@ sub _build__socketfactory {
 				$self->_sfsid($_[SESSION]->ID());
 				POE::Kernel->alias_set("socketfactoy_session");
 			},
+			shutdown => sub {
+				$self->_clients({});
+        		$self->socketfactory(undef);
+				POE::Kernel->alias_remove("socketfactoy_session");
+			},
 			_stop => sub {
 				$self->_clients({});
         		$self->socketfactory(undef);
@@ -56,10 +60,10 @@ sub _build__socketfactory {
     	},
 	   	#heap => {self => $self},
   	);
-		
+	$self->socketfactory($socketfactory);	
 	$self->_clients({});
-		
-	return $socketfactory;
+	$socketfactory = undef;
+	return $self->socketfactory;
 }
 
 sub got_client {
@@ -91,10 +95,7 @@ sub got_client_input {
 	
 	if($input eq "quit")
 	{
-		$self->_clients({});
-        $self->socketfactory(undef);
-		#POE::Kernel->post("socketfactoy_session", "stop");
-        #POE::Kernel->refcount_decrement(2);
+		POE::Kernel->post("socketfactoy_session", "shutdown");
 		return;
 	}
 	
