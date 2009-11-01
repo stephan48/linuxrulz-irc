@@ -11,7 +11,6 @@ use Data::Dumper;
 has _socketfactory => (
     isa        => 'Any',
     accessor   => 'socketfactory',
-	builder    => '_build__socketfactory',
     lazy_build => 1,
 );
 
@@ -19,11 +18,6 @@ has _clients  => (
     isa	=> 'HashRef',
 	is	=> 'rw',        
 	
-);
-
-has _sfsid => (
-	isa        => 'Int',
-	is  => 'rw',
 );
 
 sub _build__socketfactory {
@@ -41,7 +35,6 @@ sub _build__socketfactory {
         			FailureEvent => 'got_error',
 
     			);
-				$self->_sfsid($_[SESSION]->ID());
 				POE::Kernel->alias_set("socketfactoy_session");
 			},
 			shutdown => sub {
@@ -49,20 +42,17 @@ sub _build__socketfactory {
         		$self->socketfactory(undef);
 				POE::Kernel->alias_remove("socketfactoy_session");
 			},
-			_stop => sub {
-				$self->_clients({});
-        		$self->socketfactory(undef);
-			},
       		got_client => sub { $self->got_client(@_[ARG0..$#_]); },
       		got_error  => sub { $self->got_error(@_[ARG0..$#_]); },
 			on_client_input  => sub { $self->got_client_input(@_[ARG0..$#_]); },
             on_client_error  => sub { $self->got_client_error(@_[ARG0..$#_]); },
     	},
-	   	#heap => {self => $self},
   	);
-	$self->socketfactory($socketfactory);	
+		
 	$self->_clients({});
+    $self->socketfactory($socketfactory);
 	$socketfactory = undef;
+	
 	return $self->socketfactory;
 }
 
@@ -98,9 +88,11 @@ sub got_client_input {
 		POE::Kernel->post("socketfactoy_session", "shutdown");
 		return;
 	}
-	
-	$input =~ tr[a-zA-Z][n-za-mN-ZA-M]; # ASCII rot13
-    $self->_clients->{$wheel_id}->put($input);
+	else
+	{
+		$input =~ tr[a-zA-Z][n-za-mN-ZA-M]; # ASCII rot13
+    	$self->_clients->{$wheel_id}->put($input);
+	}
 }
 
 
