@@ -1,9 +1,12 @@
 package Test;
 use Moose;
 
+use POE::Session;
 use POE::Wheel::SocketFactory;
 use POE::Wheel::ReadWrite;
 use Socket;
+
+use Data::Dumper;
 
 has _socketfactory => (
     isa        => 'Any',
@@ -15,6 +18,12 @@ has _socketfactory => (
 has _clients  => (
     isa	=> 'HashRef',
 	is	=> 'rw',        
+	
+);
+
+has _sfsid => (
+	isa        => 'Int',
+	is  => 'rw',
 );
 
 sub _build__socketfactory {
@@ -32,15 +41,27 @@ sub _build__socketfactory {
         			FailureEvent => 'got_error',
 
     			);
+				$self->_sfsid($_[SESSION]->ID());
+				warn Dumper($self->_sfsid);
 			},
-      		got_client => sub { $self->got_client(@_); },
-      		got_error  => sub { $self->got_error(@_); },
-			on_client_input  => sub { $self->got_client_input(@_); },
-            on_client_error  => sub { $self->got_client_error(@_); },
+			_stop => sub {
+				#hile ( my ($key, $value) = each(%{$self->_clients}) ) {
+            		#$self->_clients->{$key}->put("bye");
+            	#delete $self->_clients->{$key};
+        		#
+				$self->_clients({});
+        		$self->socketfactory(undef);
+			},
+      		got_client => sub { $self->got_client(@_[ARG0..$#_]); },
+      		got_error  => sub { $self->got_error(@_[ARG0..$#_]); },
+			on_client_input  => sub { $self->got_client_input(@_[ARG0..$#_]); },
+            on_client_error  => sub { $self->got_client_error(@_[ARG0..$#_]); },
     	},
 	   	heap => {self => $self},
   	);
-	
+		
+	$self->_clients({});
+		
 	return $socketfactory;
 }
 
@@ -63,13 +84,32 @@ sub got_error {
 	$self->socketfactory(undef);
 }
 
-sub on_client_error  {
+sub got_client_error  {
 	my ( $self, $wheel_id ) = @_;
     delete $self->_clients->{$wheel_id};
 }
 
-sub on_client_input {
+sub got_client_input {
 	my ($self, $input, $wheel_id) = @_;
+	
+	if($input eq "quit")
+	{
+
+	#	while ( my ($key, $value) = each(%{$self->_clients}) ) {
+	#		#$self->_clients->{$key}->put("bye");
+        #	delete $self->_clients->{$key};
+    	#}
+		#$self->socketfactory(undef);
+		#return;
+		#POE::Kernel->post($self->_sfsid, "shutdown");
+		POE::Kernel->refcount_decrement($self->_sfsid, __PACKAGE__);
+		$self->_clients({});
+        $self->socketfactory(undef);
+        POE::Kernel->refcount_decrement($self->_sfsid, __PACKAGE__);
+
+		return;
+	}
+	
 	$input =~ tr[a-zA-Z][n-za-mN-ZA-M]; # ASCII rot13
     $self->_clients->{$wheel_id}->put($input);
 }
