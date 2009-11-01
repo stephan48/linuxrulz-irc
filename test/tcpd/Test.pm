@@ -42,13 +42,8 @@ sub _build__socketfactory {
 
     			);
 				$self->_sfsid($_[SESSION]->ID());
-				warn Dumper($self->_sfsid);
 			},
 			_stop => sub {
-				#hile ( my ($key, $value) = each(%{$self->_clients}) ) {
-            		#$self->_clients->{$key}->put("bye");
-            	#delete $self->_clients->{$key};
-        		#
 				$self->_clients({});
         		$self->socketfactory(undef);
 			},
@@ -94,19 +89,9 @@ sub got_client_input {
 	
 	if($input eq "quit")
 	{
-
-	#	while ( my ($key, $value) = each(%{$self->_clients}) ) {
-	#		#$self->_clients->{$key}->put("bye");
-        #	delete $self->_clients->{$key};
-    	#}
-		#$self->socketfactory(undef);
-		#return;
-		#POE::Kernel->post($self->_sfsid, "shutdown");
-		POE::Kernel->refcount_decrement($self->_sfsid, __PACKAGE__);
 		$self->_clients({});
         $self->socketfactory(undef);
         POE::Kernel->refcount_decrement($self->_sfsid, __PACKAGE__);
-
 		return;
 	}
 	

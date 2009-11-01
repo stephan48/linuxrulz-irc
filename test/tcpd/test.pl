@@ -1,5 +1,7 @@
 use lib '.';
 
+sub POE::Kernel::TRACE_REFCNT () { 1 }
+
 use POE;
 use Test;
 
