@@ -107,6 +107,7 @@ sub socket_error {
   delete $heap->{connect_wheel};
   delete $heap->{io_wheel};
   delete $heap->{cli_wheel};
+  exit(0);
 }
 
 # Finally, the console_input() function is called to handle

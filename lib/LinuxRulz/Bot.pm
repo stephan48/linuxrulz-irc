@@ -19,6 +19,10 @@ use LinuxRulz::Bot::Logger;
 use POE::Component::IRC::Qnet::State;
 use POE::Component::IRC::Plugin qw( :ALL );
 
+binmode STDIN, ':encoding(UTF-8)';
+binmode STDERR, ':encoding(UTF-8)';
+binmode STDOUT, ':encoding(UTF-8)';
+
 my $config = LoadFile("etc/config.yaml");
 
 server   '127.0.0.1';
@@ -39,7 +43,7 @@ plugins (
 	'test'  => 'LinuxRulz::Bot::Plugin::TestPlugin',
 	'admin' => 'LinuxRulz::Bot::Plugin::AdminPlugin',
 	'glossar' => 'LinuxRulz::Bot::Plugin::GlossarPlugin',
-#	'DCCPlugin'   => 'LinuxRulz::Bot::Plugin::DCCPlugin',
+	'unixd'   => 'LinuxRulz::Bot::Plugin::UNIXDPlugin',
 #	'TwitterBridge'   => 'LinuxRulz::Bot::Plugin::TwitterBridge',
 #	'TCPDPlugin' => 'LinuxRulz::Bot::Plugin::TCPDPlugin',
 );
